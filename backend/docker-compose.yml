@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  trivia-api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      FLASK_APP: flaskr
+      FLASK_ENV: development
+      DB_URL: "postgres://postgres:postgres@trivia-db:5432/trivia"
+    volumes:
+      # - ./flaskr:/opt/app/flaskr
+      # - ./test_flaskr.py:/opt/app/
+      # - ./trivia.psql:/opt/app/
+      - ./:/opt/app/
+    working_dir: /opt/app/
+    tty: true
+    expose:
+      - "5000"
+    read_only: false
+    ports:
+      - "5000:5000"
+    container_name: "trivia-api"
+    command: ["flask", "run", "--host", "0.0.0.0"]
+    depends_on:
+      - trivia-db
+  trivia-db:
+    image: postgres:11.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trivia
+    ports:
+      - "6543:5432"
+    container_name: "trivia-db"
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+      - ./trivia.psql:/opt/app/trivia.psql
+volumes:
+  database-data:
